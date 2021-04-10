@@ -1,5 +1,5 @@
 import pyxel
-from pymunk import Space, Body, Circle, Segment, ShapeFilter
+from easymunk import Space, Body, Circle, Segment, ShapeFilter
 
 
 class Game:
