@@ -1,11 +1,7 @@
 import enum
 from typing import Callable
 from abc import ABC, abstractmethod
-
-import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.path.pardir))
-
-from . import game
+from easymunk import Space
 
 #game window
 WIDTH, HEIGHT = 256, 196
@@ -51,5 +47,5 @@ class GameObject(ABC):
         ...
 
     @abstractmethod
-    def register(self, space: game.Space, message: Callable[[str, "GameObject"], None]):
+    def register(self, space: Space, message: Callable[[str, "GameObject"], None]):
         ...
