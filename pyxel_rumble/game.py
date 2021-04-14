@@ -23,7 +23,7 @@ class Game:
 
         # Inicializa o jogo
         self.state = GameState.GAMEPLAY
-        pyxel.load("pr_resources/assets.pyxres")
+        pyxel.load("pr_resources/assets1.pyxres")
 
         pyxel.cls(pyxel.COLOR_LIGHTBLUE)
 

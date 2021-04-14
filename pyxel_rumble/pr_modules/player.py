@@ -58,9 +58,9 @@ class Player (GameObject, CircleBody):
         x, y, _right, _top = self.bb
         sign = 1 if self.velocity.x >= 0 else -1
 
-        idx = int(self.position.x / 2) % 3
-        u = 8 * idx
-        camera.blt(x, y, 0, u, 0, sign * 8, 8, pyxel.COLOR_YELLOW)
+        idx = int(self.position.x / 2) % 6
+        u = 16 * idx
+        camera.blt(x, y, 0, u, 0, sign * 16, 16, pyxel.COLOR_GREEN)
 
     def register(self, space, message):
         space.add(self)
