@@ -59,23 +59,30 @@ class Player (GameObject, CircleBody):
         x, y, _right, _top = self.bb
         sign = 1 if self.velocity.x >= 0 else -1
 
-        #idx = int(self.position.x / 2) % 3
-        #u = 16 * idx
-        #camera.blt(x, y, 0, u, 16, sign * 16, 16, pyxel.COLOR_GREEN)
+        # idx = int(self.position.x / 2) % 6
+        # u = 16 * idx
+        # camera.blt(x, y, 0, u, 0, sign * 16, 16, pyxel.COLOR_GREEN)
 
         # ficar parado com desenho do rabo parado
         if (abs(round(self.velocity.x, 3)) == 0) and (abs(round(self.velocity.y, 3)) == 0):
             camera.blt(x, y, 0, 0, 0, sign * 16, 16, pyxel.COLOR_GREEN)
 
+            ###### BUG-> não executa sequencialmente os desenhos, ele seleciona aleatoriamente apenas 1 e faz ########
             # randomicamente entra, reproduz e sai
-            if random.randint(0, 100) == random.randint(20,22) :
-                # as vezes quando parado abanar o rabo 1 vez
-                idx = int(self.position.x) % 3
-                u = 16 * idx
-                camera.blt(x, y, 0, u, 16, sign * 16, 16, pyxel.COLOR_GREEN)
+            #if random.randint(0, 100) == random.randint(20,22) :
+            # if random.randint(0, 10) == 5 :
+            #     # as vezes quando parado piscar 1 vez
+            #     idx = (pyxel.frame_count//5) % 3
+            #     u = 16 * idx
+            #     camera.blt(x, y, 0, u, 16, sign * 16, 16, pyxel.COLOR_GREEN)
+           
+            # # as vezes quando parado abanar o rabo 1 vez
+            # if random.randint(0, 10) == 5 :
+            #     idx = int(self.position.x) % 6
+            #     u = 16 * idx
+            #     camera.blt(x, y, 0, u, 0, sign * 16, 16, pyxel.COLOR_GREEN)
+            ###### BUG ########
 
-
-        # as vezes quando parado piscar 1 vez
 
         # pulando 
 
