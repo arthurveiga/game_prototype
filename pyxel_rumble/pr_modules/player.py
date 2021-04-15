@@ -1,4 +1,5 @@
 import pyxel
+import random
 from easymunk import Vec2d, CircleBody, Arbiter
 from .global_config import GameObject, CollisionType, WIDTH, HEIGHT
 
@@ -58,9 +59,25 @@ class Player (GameObject, CircleBody):
         x, y, _right, _top = self.bb
         sign = 1 if self.velocity.x >= 0 else -1
 
-        idx = int(self.position.x / 2) % 6
-        u = 16 * idx
-        camera.blt(x, y, 0, u, 0, sign * 16, 16, pyxel.COLOR_GREEN)
+        #idx = int(self.position.x / 2) % 3
+        #u = 16 * idx
+        #camera.blt(x, y, 0, u, 16, sign * 16, 16, pyxel.COLOR_GREEN)
+
+        # ficar parado com desenho do rabo parado
+        if (abs(round(self.velocity.x, 3)) == 0) and (abs(round(self.velocity.y, 3)) == 0):
+            camera.blt(x, y, 0, 0, 0, sign * 16, 16, pyxel.COLOR_GREEN)
+
+            # randomicamente entra, reproduz e sai
+            if random.randint(0, 100) == random.randint(20,22) :
+                # as vezes quando parado abanar o rabo 1 vez
+                idx = int(self.position.x) % 3
+                u = 16 * idx
+                camera.blt(x, y, 0, u, 16, sign * 16, 16, pyxel.COLOR_GREEN)
+
+
+        # as vezes quando parado piscar 1 vez
+
+        # pulando 
 
     def register(self, space, message):
         space.add(self)
