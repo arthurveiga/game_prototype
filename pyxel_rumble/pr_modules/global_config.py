@@ -5,7 +5,7 @@ from easymunk import Space
 
 #game window
 WIDTH, HEIGHT = 256, 196
-
+FPS = 30
 SCENARIO = """
 |
 |

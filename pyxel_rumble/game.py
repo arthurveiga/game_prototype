@@ -75,6 +75,6 @@ class Game:
         if (pyxel.btnp(pyxel.KEY_P)):
             self.paused = False if self.paused else True
         if not self.paused:
-            self.space.step(1 / 30, 2)
+            self.space.step(1 / FPS, 2)
         self.player.update()
         self.camera.follow(self.player.position, tol=self.CAMERA_TOL)

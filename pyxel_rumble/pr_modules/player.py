@@ -1,10 +1,10 @@
 import pyxel
 import random
 from easymunk import Vec2d, CircleBody, Arbiter
-from .global_config import GameObject, CollisionType, WIDTH, HEIGHT
+from .global_config import GameObject, CollisionType, WIDTH, HEIGHT, FPS
 
 class Player (GameObject, CircleBody):
-    SPEED = 90
+    SPEED = 80
     JUMP_SPEED = 120
     COLOR = pyxel.COLOR_RED
     NUMBER_JUMPS = 2
@@ -13,7 +13,7 @@ class Player (GameObject, CircleBody):
         super().__init__(
             radius=4,
             position=(x, y),
-            elasticity=0.1,
+            elasticity=0.0,
             collision_type=CollisionType.PLAYER,
         )
         self.can_jump = False
@@ -58,33 +58,92 @@ class Player (GameObject, CircleBody):
     def draw(self, camera=pyxel):
         x, y, _right, _top = self.bb
         sign = 1 if self.velocity.x >= 0 else -1
+        # u altera horizontalmente a posição nos assets, v altera verticalmente
 
-        # idx = int(self.position.x / 2) % 6
-        # u = 16 * idx
-        # camera.blt(x, y, 0, u, 0, sign * 16, 16, pyxel.COLOR_GREEN)
+        is_moving = False if ((abs(round(self.velocity.x, 3)) == 0) and abs(round(self.velocity.y, 3) == 0)) else True
 
-        # ficar parado com desenho do rabo parado
-        if (abs(round(self.velocity.x, 3)) == 0) and (abs(round(self.velocity.y, 3)) == 0):
-            camera.blt(x, y, 0, 0, 0, sign * 16, 16, pyxel.COLOR_GREEN)
+        rise_threshold = 0.5
+        fall_threshold = -0.01
+        is_jumping = True if (round(self.velocity.y, 3) >= rise_threshold)  else False
+        
+        is_in_the_air = True if (round(self.velocity.y, 3) < rise_threshold and
+                                 round(self.velocity.y, 3) >= fall_threshold)  else False
+        is_falling = True if (round(self.velocity.y, 3) < fall_threshold)  else False
 
-            ###### BUG-> não executa sequencialmente os desenhos, ele seleciona aleatoriamente apenas 1 e faz ########
-            # randomicamente entra, reproduz e sai
-            #if random.randint(0, 100) == random.randint(20,22) :
-            # if random.randint(0, 10) == 5 :
-            #     # as vezes quando parado piscar 1 vez
-            #     idx = (pyxel.frame_count//5) % 3
-            #     u = 16 * idx
-            #     camera.blt(x, y, 0, u, 16, sign * 16, 16, pyxel.COLOR_GREEN)
-           
-            # # as vezes quando parado abanar o rabo 1 vez
-            # if random.randint(0, 10) == 5 :
-            #     idx = int(self.position.x) % 6
-            #     u = 16 * idx
-            #     camera.blt(x, y, 0, u, 0, sign * 16, 16, pyxel.COLOR_GREEN)
-            ###### BUG ########
+        is_walking = True if (abs(round(self.velocity.x, 3)) > 0 and 
+                             (abs(round(self.velocity.y, 3)) == 0) and 
+                             (pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.KEY_RIGHT))) else False
+        
+        # ficar parado (idle)
 
+        if (is_moving == False):
+            # numero de frames contados de todas as animações de idle
+            abana = [0 for _ in range(0, 10, 1)]
+            abana_pisca = [1 for _ in range(0, 10, 1)]
+            pisca = [2 for _ in range(0, 9, 1)]
+            parado = [-1 for _ in range(0, 20, 1)]
+            # sequência pré-definida
+            anim = abana + parado + pisca + parado + abana + abana_pisca
+            anim_counter = int(pyxel.frame_count) % len(anim)
 
-        # pulando 
+            #animação
+            idle_anim_selected = anim[anim_counter]
+            if (idle_anim_selected in [0, 1]):
+                # abana rabo (0), abana rabo e pisca (1)
+                idx = int(pyxel.frame_count//2) % 6
+                u = 16 * idx
+                v = 16 * idle_anim_selected
+                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
+            elif (idle_anim_selected == 2):
+                # só pisca o olho (2)
+                idx = int(pyxel.frame_count//3) % 3
+                u = 16 * idx
+                v = 16 * idle_anim_selected
+                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
+            elif (idle_anim_selected == -1):
+                # parado (-1)
+                camera.blt(x, y, 0, 0, 0, sign * 16, 16, pyxel.COLOR_GREEN)
+            else:
+                pass
+                
+        else:
+            if(is_walking):
+                # numero de frames contados de todas as animações de andar
+                anda = [3 for _ in range(0, 8, 1)]
+                # sequência pré-definida
+                anim = anda
+                anim_counter = int(pyxel.frame_count) % len(anim)
+                
+                # andando (3)
+                walk_anim_selected = anim[anim_counter]
+                idx = int(pyxel.frame_count//2) % 5
+                u = 16 * idx
+                v = 16 * walk_anim_selected
+                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
+
+            elif(is_jumping):
+                jump_anim_selected = 4
+                idx = 0
+                u = 16 * idx
+                v = 16 * jump_anim_selected
+                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
+                
+            elif(is_in_the_air):
+                jump_anim_selected = 4
+                idx = 1
+                u = 16 * idx
+                v = 16 * jump_anim_selected
+                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
+
+            elif(is_falling):
+                jump_anim_selected = 4
+                idx = 2
+                u = 16 * idx
+                v = 16 * jump_anim_selected
+                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
+
+            else:
+                pass
 
     def register(self, space, message):
         space.add(self)
