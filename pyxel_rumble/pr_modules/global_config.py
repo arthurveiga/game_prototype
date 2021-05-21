@@ -2,10 +2,12 @@ import enum
 from typing import Callable
 from abc import ABC, abstractmethod
 from easymunk import Space
+import pyxel
 
 #game window
 WIDTH, HEIGHT = 256, 196
 FPS = 30
+BACKGROUND_COLOR = pyxel.COLOR_BLACK
 SCENARIO = """
 |
 |

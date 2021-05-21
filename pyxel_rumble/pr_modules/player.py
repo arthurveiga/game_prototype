@@ -2,20 +2,31 @@ import pyxel
 import random
 from easymunk import Vec2d, CircleBody, Arbiter
 from .global_config import GameObject, CollisionType, WIDTH, HEIGHT, FPS
+from .anim_dog_moveset import *
+from .anim_rabbit_moveset import *
 
 class Player (GameObject, CircleBody):
-    SPEED = 80
-    JUMP_SPEED = 120
+    SPEED = 120
+    JUMP_SPEED = 70
     COLOR = pyxel.COLOR_RED
     NUMBER_JUMPS = 2
+    DAMAGE_PERCENTAGE = 0
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, animal, controls):
         super().__init__(
             radius=4,
             position=(x, y),
             elasticity=0.0,
             collision_type=CollisionType.PLAYER,
         )
+        self.CONTROLS = []
+        if (controls == 'WASD'):
+            self.CONTROLS = [pyxel.KEY_A, pyxel.KEY_D, pyxel.KEY_W, pyxel.KEY_S]
+        elif (controls == 'ArrowKeys'):
+            self.CONTROLS = [pyxel.KEY_LEFT, pyxel.KEY_RIGHT, pyxel.KEY_UP, pyxel.KEY_DOWN]
+        else:
+            pass
+        self.animal = animal
         self.can_jump = False
         self.remaining_jumps = self.NUMBER_JUMPS
 
@@ -31,12 +42,12 @@ class Player (GameObject, CircleBody):
             v = Vec2d(0,0)
         
         # Controles
-        if pyxel.btn(pyxel.KEY_LEFT):
+        if pyxel.btn(self.CONTROLS[0]):
             if self.can_jump and self.remaining_jumps > 0:
                 v = Vec2d(-self.SPEED, v.y)
             elif v.x <= 0:
                 v = Vec2d(-self.SPEED / 2, v.y)
-        elif pyxel.btn(pyxel.KEY_RIGHT):
+        elif pyxel.btn(self.CONTROLS[1]):
             if self.can_jump and self.remaining_jumps > 0:
                 v = Vec2d(+self.SPEED, v.y)
             elif v.x <= 0:
@@ -45,11 +56,11 @@ class Player (GameObject, CircleBody):
             r = 0.5 if self.can_jump else 1.0
             v = Vec2d(v.x * r, v.y)
 
-        if (pyxel.btnp(pyxel.KEY_UP)
+        if (pyxel.btnp(self.CONTROLS[2])
             and self.can_jump and self.remaining_jumps > 0 ):
             v = Vec2d(v.x, self.JUMP_SPEED)
             self.remaining_jumps-=1
-        elif(pyxel.btnp(pyxel.KEY_DOWN)
+        elif(pyxel.btnp(self.CONTROLS[3])
             and self.remaining_jumps < self.NUMBER_JUMPS):
             v = Vec2d(v.x, -self.JUMP_SPEED)
 
@@ -68,80 +79,41 @@ class Player (GameObject, CircleBody):
         
         is_in_the_air = True if (round(self.velocity.y, 3) < rise_threshold and
                                  round(self.velocity.y, 3) >= fall_threshold)  else False
-        is_falling = True if (round(self.velocity.y, 3) < fall_threshold)  else False
+        is_falling = True if (round(self.velocity.y, 3) < fall_threshold) else False
 
         is_walking = True if (abs(round(self.velocity.x, 3)) > 0 and 
                              (abs(round(self.velocity.y, 3)) == 0) and 
-                             (pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.KEY_RIGHT))) else False
+                             (pyxel.btn(self.CONTROLS[0]) or pyxel.btn(self.CONTROLS[1]))) else False
         
         # ficar parado (idle)
 
         if (is_moving == False):
-            # numero de frames contados de todas as animações de idle
-            abana = [0 for _ in range(0, 10, 1)]
-            abana_pisca = [1 for _ in range(0, 10, 1)]
-            pisca = [2 for _ in range(0, 9, 1)]
-            parado = [-1 for _ in range(0, 20, 1)]
-            # sequência pré-definida
-            anim = abana + parado + pisca + parado + abana + abana_pisca
-            anim_counter = int(pyxel.frame_count) % len(anim)
+            if(self.animal == 'dog'):
+                dog_moveset_anim_idle(camera, x ,y, sign)
+            if(self.animal == 'rabbit'):
+                rabbit_moveset_anim_idle(camera, x ,y, sign)
 
-            #animação
-            idle_anim_selected = anim[anim_counter]
-            if (idle_anim_selected in [0, 1]):
-                # abana rabo (0), abana rabo e pisca (1)
-                idx = int(pyxel.frame_count//2) % 6
-                u = 16 * idx
-                v = 16 * idle_anim_selected
-                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
-            elif (idle_anim_selected == 2):
-                # só pisca o olho (2)
-                idx = int(pyxel.frame_count//3) % 3
-                u = 16 * idx
-                v = 16 * idle_anim_selected
-                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
-            elif (idle_anim_selected == -1):
-                # parado (-1)
-                camera.blt(x, y, 0, 0, 0, sign * 16, 16, pyxel.COLOR_GREEN)
-            else:
-                pass
-                
         else:
             if(is_walking):
-                # numero de frames contados de todas as animações de andar
-                anda = [3 for _ in range(0, 8, 1)]
-                # sequência pré-definida
-                anim = anda
-                anim_counter = int(pyxel.frame_count) % len(anim)
-                
-                # andando (3)
-                walk_anim_selected = anim[anim_counter]
-                idx = int(pyxel.frame_count//2) % 5
-                u = 16 * idx
-                v = 16 * walk_anim_selected
-                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
-
+                if(self.animal == 'dog'):
+                    dog_moveset_anim_walk(camera, x, y, sign)
+                if(self.animal == 'rabbit'):
+                    rabbit_moveset_anim_walk(camera, x, y, sign)
             elif(is_jumping):
-                jump_anim_selected = 4
-                idx = 0
-                u = 16 * idx
-                v = 16 * jump_anim_selected
-                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
-                
+                if(self.animal == 'dog'):
+                    dog_moveset_init_jump(camera, x, y, sign)
+                if(self.animal == 'rabbit'):
+                    rabbit_moveset_init_jump(camera, x, y, sign)
             elif(is_in_the_air):
-                jump_anim_selected = 4
-                idx = 1
-                u = 16 * idx
-                v = 16 * jump_anim_selected
-                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
-
+                if(self.animal == 'dog'):
+                    dog_moveset_in_the_air_jump (camera, x, y, sign)
+                if(self.animal == 'rabbit'):
+                    rabbit_moveset_in_the_air_jump(camera, x, y, sign)
             elif(is_falling):
-                jump_anim_selected = 4
-                idx = 2
-                u = 16 * idx
-                v = 16 * jump_anim_selected
-                camera.blt(x, y, 0, u, v, sign * 16, 16, pyxel.COLOR_GREEN)
-
+                if(self.animal == 'dog'):
+                    dog_moveset_falling_jump (camera, x, y ,sign)
+                if(self.animal == 'rabbit'):
+                    rabbit_moveset_falling_jump(camera, x, y, sign)
             else:
                 pass
 

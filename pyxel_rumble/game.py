@@ -5,8 +5,7 @@ from easymunk import Vec2d, Arbiter, CircleBody, Space, march_string
 from easymunk import pyxel as phys
 
 class Game:
-    # Cores
-    
+
     # Outras propriedades
     CAMERA_TOL = Vec2d(WIDTH / 2 - 64, HEIGHT / 2 - 48)
     N_ENEMIES = 20
@@ -25,11 +24,14 @@ class Game:
         self.state = GameState.GAMEPLAY
         pyxel.load("pr_resources/assets1.pyxres")
 
-        pyxel.cls(pyxel.COLOR_LIGHTBLUE)
-
-        # Cria jogador
-        self.player = Player(50, 50)
-        self.player.register(self.space, self.message)
+        pyxel.cls(BACKGROUND_COLOR)
+        
+        # Cria jogadores
+        self.player1 = Player(50, 50, 'rabbit', 'WASD')
+        self.player1.register(self.space, self.message)
+        
+        self.player2 = Player(80, 50, 'dog', 'ArrowKeys')
+        self.player2.register(self.space, self.message)
 
         # Cria chão
         f = phys.rect(0, 0, 1000, 48, body_type="static")
@@ -45,7 +47,8 @@ class Game:
             fn(sender)
 
     def draw(self):
-        pyxel.cls(pyxel.COLOR_LIGHTBLUE)
+        
+        pyxel.cls(BACKGROUND_COLOR)
         for body in self.space.bodies:
             if isinstance(body, (Player)):
                 body.draw(self.camera)
@@ -54,7 +57,7 @@ class Game:
 
         # Desenha texto informativo
         pyxel.text(5, 5, "Setas para controlar o personagem (ele tem 3 pulos)\nR para resetar", pyxel.COLOR_BLACK)
-        info_text = "Posicao: (" + str(round(self.player.position[0], 3)) + ", " + str(round(self.player.position[1], 3)) + ")\n" +                    "Velocidade: (" + str(round(self.player.velocity.x, 3)) + ", " + str(round(self.player.velocity.y, 3)) + ")\n" + "Pulos Restantes: " + str(self.player.remaining_jumps)
+        info_text = "Posicao: (" + str(round(self.player1.position[0], 3)) + ", " + str(round(self.player1.position[1], 3)) + ")\n" +                    "Velocidade: (" + str(round(self.player1.velocity.x, 3)) + ", " + str(round(self.player1.velocity.y, 3)) + ")\n" + "Pulos Restantes: " + str(self.player1.remaining_jumps)
         pyxel.text(5, 30, info_text, pyxel.COLOR_BLACK)
 
         msg = ""
@@ -64,6 +67,7 @@ class Game:
         if msg:
             x = (WIDTH - len(msg) * pyxel.FONT_WIDTH) / 2
             pyxel.text(round(x), HEIGHT // 2, msg, pyxel.COLOR_RED)
+
     def handle_hit_player(self, sender):
         self.state = GameState.GAMEPLAY
 
@@ -71,10 +75,10 @@ class Game:
         self.state = GameState.GAMEPLAY
 
     def update(self):
-
         if (pyxel.btnp(pyxel.KEY_P)):
             self.paused = False if self.paused else True
         if not self.paused:
             self.space.step(1 / FPS, 2)
-        self.player.update()
-        self.camera.follow(self.player.position, tol=self.CAMERA_TOL)
+        self.player1.update()
+        self.player2.update()
+        self.camera.follow(self.player1.position, tol=self.CAMERA_TOL)
