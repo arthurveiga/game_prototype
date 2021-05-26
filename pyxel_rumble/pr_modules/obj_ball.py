@@ -1,4 +1,4 @@
-from random import random
+import random
 import pyxel
 import random
 from easymunk import Vec2d, CircleBody, Arbiter
@@ -26,10 +26,11 @@ class Ball (GameObject, CircleBody):
         self.force += Vec2d(0, -mass * 200)
 
         if pyxel.btnp(pyxel.KEY_R):
+            self.particles.emmit(self.position, self.velocity)
             self.position = (self.INIT_X, self.INIT_Y)
             v = Vec2d(0,0)
         self.velocity = v
-        self.particles.emmit(self.position, self.velocity)
+        
         
 
     def draw (self):
@@ -47,8 +48,7 @@ class Ball (GameObject, CircleBody):
             self.SCORE += 1
             self.DAMAGE_PERCENTAGE += 1
             self.velocity = (random.uniform(-2, 2)*self.DAMAGE_PERCENTAGE, 100 + 2 * self.DAMAGE_PERCENTAGE)
-            self.particles.emmit(self.position, self.velocity)
-
+            
         @space.post_solve_collision(CollisionType.BALL, CollisionType.PLATFORM)
         def _col_start(arb: Arbiter):
             self.SCORE = 0

@@ -143,8 +143,9 @@ class Player (GameObject, PolyBody):
             n = arb.normal_from(self)
             self.can_jump = n.y <= -0.5
             self.remaining_jumps = self.NUMBER_JUMPS
-            self.particles.emmit(self.position, self.velocity.local_to_world)
+            self.particles.emmit(self.position, self.velocity)
 
         @space.separate_collision(CollisionType.PLAYER, CollisionType.PLATFORM)
         def _col_end(arb: Arbiter):
             self.can_jump = False if self.remaining_jumps == 0 else True
+            self.particles.emmit(self.position, self.velocity)
