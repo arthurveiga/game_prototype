@@ -41,7 +41,9 @@ class Game:
         f = Ground()
 
         # Cria margens
-        phys.margin(0, 0, 1000, HEIGHT)
+        phys.margin(0, 0, 1000, HEIGHT,
+            elasticity = 1,
+            friction = 1)
 
     def message(self, msg, sender):
         fn = getattr(self, f'handle_{msg}', None)
