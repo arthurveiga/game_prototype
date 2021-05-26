@@ -42,7 +42,7 @@ class Game:
         f = Ground()
 
         # Cria margens
-        phys.margin(0, 0, 1000, HEIGHT,
+        phys.margin(0, 0, WIDTH - 30, HEIGHT,
             elasticity = 1,
             friction = 1)
 
