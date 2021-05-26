@@ -1,7 +1,9 @@
+from .pr_modules.platform import Ground
+from .pr_modules.obj_ball import Ball
 from .pr_modules.player import Player
 from .pr_modules.global_config import *
 import pyxel
-from easymunk import Vec2d, Arbiter, CircleBody, Space, march_string
+from easymunk import Vec2d
 from easymunk import pyxel as phys
 
 class Game:
@@ -27,14 +29,16 @@ class Game:
         pyxel.cls(BACKGROUND_COLOR)
         
         # Cria jogadores
-        self.player1 = Player(50, 50, 'rabbit', 'WASD')
+        self.player1 = Player(50, 50, 'dog', 'ArrowKeys')
         self.player1.register(self.space, self.message)
         
-        self.player2 = Player(80, 50, 'dog', 'ArrowKeys')
-        self.player2.register(self.space, self.message)
+        #self.player2 = Player(80, 50, 'rabbit', 'WASD')
+        #self.player2.register(self.space, self.message)
 
+        self.ball = Ball(50, 150)
+        self.ball.register(self.space, self.message)
         # Cria chão
-        f = phys.rect(0, 0, 1000, 48, body_type="static")
+        f = Ground()
 
         # Cria margens
         phys.margin(0, 0, 1000, HEIGHT)
@@ -56,9 +60,9 @@ class Game:
                 self.camera.draw(body)
 
         # Desenha texto informativo
-        pyxel.text(5, 5, "Setas para controlar o personagem (ele tem 3 pulos)\nR para resetar", pyxel.COLOR_BLACK)
-        info_text = "Posicao: (" + str(round(self.player1.position[0], 3)) + ", " + str(round(self.player1.position[1], 3)) + ")\n" +                    "Velocidade: (" + str(round(self.player1.velocity.x, 3)) + ", " + str(round(self.player1.velocity.y, 3)) + ")\n" + "Pulos Restantes: " + str(self.player1.remaining_jumps)
-        pyxel.text(5, 30, info_text, pyxel.COLOR_BLACK)
+        pyxel.text(5, 5, "Setas para controlar o personagem (ele tem 3 pulos)\nR para resetar", pyxel.COLOR_YELLOW)
+        info_text = "Posicao: (" + str(round(self.player1.position[0], 3)) + ", " + str(round(self.player1.position[1], 3)) + ")\n" +                    "Velocidade: (" + str(round(self.player1.velocity.x, 3)) + ", " + str(round(self.player1.velocity.y, 3)) + ")\n" + "Pulos Restantes: " + str(self.player1.remaining_jumps) + "\nScore: " + str(self.ball.SCORE)
+        pyxel.text(5, 30, info_text, pyxel.COLOR_YELLOW)
 
         msg = ""
         if self.paused:
@@ -80,5 +84,6 @@ class Game:
         if not self.paused:
             self.space.step(1 / FPS, 2)
         self.player1.update()
-        self.player2.update()
+        #self.player2.update()
+        self.ball.update()
         self.camera.follow(self.player1.position, tol=self.CAMERA_TOL)

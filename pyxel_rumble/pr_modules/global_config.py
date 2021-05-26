@@ -32,7 +32,8 @@ class GameState (enum.IntEnum):
     
 class CollisionType(enum.IntEnum):
     PLAYER = 1
-    PLATFORM = 2
+    BALL = 2
+    PLATFORM = 3
 
 class HitboxType(enum.IntEnum):
     HURTBOX = 0

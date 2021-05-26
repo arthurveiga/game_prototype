@@ -1,11 +1,11 @@
 import pyxel
 import random
-from easymunk import Vec2d, CircleBody, Arbiter
+from easymunk import Vec2d, PolyBody, Arbiter
 from .global_config import GameObject, CollisionType, WIDTH, HEIGHT, FPS
 from .anim_dog_moveset import *
 from .anim_rabbit_moveset import *
 
-class Player (GameObject, CircleBody):
+class Player (GameObject, PolyBody):
     SPEED = 120
     JUMP_SPEED = 70
     COLOR = pyxel.COLOR_RED
@@ -13,12 +13,24 @@ class Player (GameObject, CircleBody):
     DAMAGE_PERCENTAGE = 0
 
     def __init__(self, x, y, animal, controls):
+        
+        if (animal == 'dog'):
+            poly_vertices = [(2,0), (2,10), (15,10), (15,0)]
+        elif (animal == 'rabbit'):
+            poly_vertices = []
+        else:
+            pass
+
         super().__init__(
-            radius=4,
-            position=(x, y),
+            mass = 50,
+            position = (x,y),
+            vertices = poly_vertices,
             elasticity=0.0,
+            friction = 1,
             collision_type=CollisionType.PLAYER,
+            color = pyxel.COLOR_ORANGE            
         )
+
         self.CONTROLS = []
         if (controls == 'WASD'):
             self.CONTROLS = [pyxel.KEY_A, pyxel.KEY_D, pyxel.KEY_W, pyxel.KEY_S]
@@ -67,22 +79,25 @@ class Player (GameObject, CircleBody):
         self.velocity = v
 
     def draw(self, camera=pyxel):
-        x, y, _right, _top = self.bb
-        sign = 1 if self.velocity.x >= 0 else -1
-        # u altera horizontalmente a posição nos assets, v altera verticalmente
+        vx = self.velocity.x
+        vy = self.velocity.y
 
-        is_moving = False if ((abs(round(self.velocity.x, 3)) == 0) and abs(round(self.velocity.y, 3) == 0)) else True
+        x, y, _right, _top = self.bb
+        sign = 1 if vx >= 0 else -1
+        # u altera horizontalmente a posição nos assets, v altera verticalmente
+        
+        is_moving = False if ((abs(round(vx, 3)) == 0) and abs(round(vy, 3) == 0)) else True
 
         rise_threshold = 0.5
         fall_threshold = -0.01
-        is_jumping = True if (round(self.velocity.y, 3) >= rise_threshold)  else False
+        is_jumping = True if (round(vy, 3) >= rise_threshold)  else False
         
-        is_in_the_air = True if (round(self.velocity.y, 3) < rise_threshold and
-                                 round(self.velocity.y, 3) >= fall_threshold)  else False
-        is_falling = True if (round(self.velocity.y, 3) < fall_threshold) else False
+        is_in_the_air = True if (round(vy, 3) < rise_threshold and
+                                 round(vy, 3) >= fall_threshold)  else False
+        is_falling = True if (round(vy, 3) < fall_threshold) else False
 
-        is_walking = True if (abs(round(self.velocity.x, 3)) > 0 and 
-                             (abs(round(self.velocity.y, 3)) == 0) and 
+        is_walking = True if (abs(round(vx, 3)) > 0 and 
+                             (abs(round(vy, 3)) == 0) and 
                              (pyxel.btn(self.CONTROLS[0]) or pyxel.btn(self.CONTROLS[1]))) else False
         
         # ficar parado (idle)
