@@ -5,6 +5,7 @@ from .pr_modules.global_config import *
 import pyxel
 from easymunk import Vec2d
 from easymunk import pyxel as phys
+from .pr_modules.sound import music_bgm
 
 class Game:
 
@@ -41,7 +42,12 @@ class Game:
         f = Ground()
 
         # Cria margens
-        phys.margin(0, 0, 1000, HEIGHT)
+        phys.margin(0, 0, WIDTH - 30, HEIGHT,
+            elasticity = 1,
+            friction = 1)
+
+        # Toca música
+        music_bgm()
 
     def message(self, msg, sender):
         fn = getattr(self, f'handle_{msg}', None)
@@ -53,6 +59,8 @@ class Game:
     def draw(self):
         
         pyxel.cls(BACKGROUND_COLOR)
+
+    
         for body in self.space.bodies:
             if isinstance(body, (Player)):
                 body.draw(self.camera)
@@ -60,9 +68,9 @@ class Game:
                 self.camera.draw(body)
 
         # Desenha texto informativo
-        pyxel.text(5, 5, "Setas para controlar o personagem (ele tem 3 pulos)\nR para resetar", pyxel.COLOR_YELLOW)
+        pyxel.text(10, 5, "Setas para controlar o personagem (ele tem 3 pulos)\nR para resetar", pyxel.COLOR_YELLOW)
         info_text = "Posicao: (" + str(round(self.player1.position[0], 3)) + ", " + str(round(self.player1.position[1], 3)) + ")\n" +                    "Velocidade: (" + str(round(self.player1.velocity.x, 3)) + ", " + str(round(self.player1.velocity.y, 3)) + ")\n" + "Pulos Restantes: " + str(self.player1.remaining_jumps) + "\nScore: " + str(self.ball.SCORE)
-        pyxel.text(5, 30, info_text, pyxel.COLOR_YELLOW)
+        pyxel.text(10, 30, info_text, pyxel.COLOR_YELLOW)
 
         msg = ""
         if self.paused:

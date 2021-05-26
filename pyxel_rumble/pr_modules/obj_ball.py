@@ -4,6 +4,7 @@ import random
 from easymunk import Vec2d, CircleBody, Arbiter
 from .global_config import GameObject, CollisionType
 from .particles import *
+from .sound import sfx_ball_touch_floor, sfx_player_ball_score
 
 class Ball (GameObject, CircleBody):
     def __init__(self, x, y, space):
@@ -45,12 +46,14 @@ class Ball (GameObject, CircleBody):
         space.add(self)
         @space.post_solve_collision(CollisionType.BALL, CollisionType.PLAYER)
         def _col_start(arb: Arbiter):
+            sfx_player_ball_score()
             self.SCORE += 1
             self.DAMAGE_PERCENTAGE += 1
             self.velocity = (random.uniform(-2, 2)*self.DAMAGE_PERCENTAGE, 100 + 2 * self.DAMAGE_PERCENTAGE)
             
         @space.post_solve_collision(CollisionType.BALL, CollisionType.PLATFORM)
         def _col_start(arb: Arbiter):
+            sfx_ball_touch_floor()
             self.SCORE = 0
             self.DAMAGE_PERCENTAGE = 0
             self.velocity = (0, 100 + 2 * self.DAMAGE_PERCENTAGE)

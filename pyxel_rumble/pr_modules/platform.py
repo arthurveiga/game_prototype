@@ -6,7 +6,7 @@ class Ground (GameObject):
         self.platform_body = phys.rect(
             x = 0,
             y = 0,
-            w = 500,
+            w = WIDTH - 30,
             h = 48,
             body_type = 'static'
         )
