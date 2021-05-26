@@ -35,7 +35,7 @@ class Game:
         #self.player2 = Player(80, 50, 'rabbit', 'WASD')
         #self.player2.register(self.space, self.message)
 
-        self.ball = Ball(50, 150)
+        self.ball = Ball(50, 150, self.space)
         self.ball.register(self.space, self.message)
         # Cria chão
         f = Ground()

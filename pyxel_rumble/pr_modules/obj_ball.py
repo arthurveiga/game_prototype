@@ -3,9 +3,10 @@ import pyxel
 import random
 from easymunk import Vec2d, CircleBody, Arbiter
 from .global_config import GameObject, CollisionType
+from .particles import *
 
 class Ball (GameObject, CircleBody):
-    def __init__(self, x, y):
+    def __init__(self, x, y, space):
         self.INIT_X, self.INIT_Y = x, y
         super().__init__(
             radius=4,
@@ -16,6 +17,7 @@ class Ball (GameObject, CircleBody):
         )
         self.SCORE = 0
         self.DAMAGE_PERCENTAGE = 0
+        self.particles = Particles(space)
 
     def update (self):
         v = self.velocity
@@ -27,9 +29,11 @@ class Ball (GameObject, CircleBody):
             self.position = (self.INIT_X, self.INIT_Y)
             v = Vec2d(0,0)
         self.velocity = v
+        self.particles.emmit(self.position, self.velocity)
         
 
     def draw (self):
+        self.particles.draw(self.particles.space.camera, pyxel.COLOR_RED)
         pyxel.circ(
             self.position[0], 
             self.position[1], 
@@ -43,6 +47,7 @@ class Ball (GameObject, CircleBody):
             self.SCORE += 1
             self.DAMAGE_PERCENTAGE += 1
             self.velocity = (random.uniform(-2, 2)*self.DAMAGE_PERCENTAGE, 100 + 2 * self.DAMAGE_PERCENTAGE)
+            self.particles.emmit(self.position, self.velocity)
 
         @space.post_solve_collision(CollisionType.BALL, CollisionType.PLATFORM)
         def _col_start(arb: Arbiter):

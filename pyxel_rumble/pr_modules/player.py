@@ -73,7 +73,7 @@ class Player (GameObject, PolyBody):
             and self.can_jump and self.remaining_jumps > 0 ):
             v = Vec2d(v.x, self.JUMP_SPEED)
             self.remaining_jumps-=1
-            self.particles.emmit(self.position, self.velocity)
+            
         elif(pyxel.btnp(self.CONTROLS[3])
             and self.remaining_jumps < self.NUMBER_JUMPS):
             v = Vec2d(v.x, -self.JUMP_SPEED)
@@ -138,12 +138,13 @@ class Player (GameObject, PolyBody):
     def register(self, space, message):
         space.add(self)
 
-        @space.post_solve_collision(CollisionType.PLAYER, ...)
+        @space.post_solve_collision(CollisionType.PLAYER, CollisionType.PLATFORM)
         def _col_start(arb: Arbiter):
             n = arb.normal_from(self)
             self.can_jump = n.y <= -0.5
             self.remaining_jumps = self.NUMBER_JUMPS
+            self.particles.emmit(self.position, self.velocity.local_to_world)
 
-        @space.separate_collision(CollisionType.PLAYER, ...)
+        @space.separate_collision(CollisionType.PLAYER, CollisionType.PLATFORM)
         def _col_end(arb: Arbiter):
             self.can_jump = False if self.remaining_jumps == 0 else True
