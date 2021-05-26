@@ -4,6 +4,7 @@ from easymunk import Vec2d, PolyBody, Arbiter
 from .global_config import GameObject, CollisionType, WIDTH, HEIGHT, FPS
 from .anim_dog_moveset import *
 from .anim_rabbit_moveset import *
+from .sound import *
 
 
 class Player (GameObject, PolyBody):
@@ -69,11 +70,14 @@ class Player (GameObject, PolyBody):
                 v = Vec2d(-self.SPEED, v.y)
             elif v.x <= 0:
                 v = Vec2d(-self.SPEED / 2, v.y)
+            sfx_player_walk()
+
         elif pyxel.btn(self.CONTROLS[1]):
             if self.can_jump and self.remaining_jumps > 0:
                 v = Vec2d(+self.SPEED, v.y)
             elif v.x <= 0:
                 v = Vec2d(+self.SPEED / 2, v.y)
+            sfx_player_walk()
         else:
             r = 0.5 if self.can_jump else 1.0
             v = Vec2d(v.x * r, v.y)
@@ -83,7 +87,7 @@ class Player (GameObject, PolyBody):
             and self.can_jump and self.remaining_jumps > 0 ):
             v = Vec2d(v.x, self.JUMP_SPEED)
             self.remaining_jumps-=1
-            particles_emmit(self.position, self.velocity, self.rotation_vector)
+            sfx_sound_player_jump()
 
         elif(pyxel.btnp(self.CONTROLS[3])
             and self.remaining_jumps < self.NUMBER_JUMPS):
