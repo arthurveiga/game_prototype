@@ -5,7 +5,7 @@ from .global_config import GameObject, CollisionType, WIDTH, HEIGHT, FPS
 from .anim_dog_moveset import *
 from .anim_rabbit_moveset import *
 from .sound import *
-
+from .particles import *
 
 class Player (GameObject, PolyBody):
     SPEED = 120
@@ -14,7 +14,7 @@ class Player (GameObject, PolyBody):
     NUMBER_JUMPS = 3
     DAMAGE_PERCENTAGE = 0
 
-    def __init__(self, x, y, animal, controls):
+    def __init__(self, x, y, animal, controls, space):
         
         #poly generation
         if (animal == 'dog'):
@@ -51,6 +51,7 @@ class Player (GameObject, PolyBody):
         self.animal = animal
         self.can_jump = False
         self.remaining_jumps = self.NUMBER_JUMPS
+        self.particles = Particles(space)
 
     def update(self):
         v = self.velocity
@@ -88,7 +89,7 @@ class Player (GameObject, PolyBody):
             v = Vec2d(v.x, self.JUMP_SPEED)
             self.remaining_jumps-=1
             sfx_sound_player_jump()
-
+            
         elif(pyxel.btnp(self.CONTROLS[3])
             and self.remaining_jumps < self.NUMBER_JUMPS):
             v = Vec2d(v.x, -self.JUMP_SPEED)
@@ -132,6 +133,7 @@ class Player (GameObject, PolyBody):
                 if(self.animal == 'rabbit'):
                     rabbit_moveset_anim_walk(camera, x, y, sign)
             elif(is_jumping):
+                self.particles.draw(self.particles.space.camera)
                 if(self.animal == 'dog'):
                     dog_moveset_init_jump(camera, x, y, sign)
                 if(self.animal == 'rabbit'):
@@ -151,7 +153,7 @@ class Player (GameObject, PolyBody):
 
     def register(self, space, message):
         space.add(self)
-
+        
         # para poder pular de novo
         @space.post_solve_collision(CollisionType.PLAYER, CollisionType.PLATFORM)
         def _col_start(arb: Arbiter):
@@ -159,14 +161,17 @@ class Player (GameObject, PolyBody):
             n = arb.normal_from(self)
             self.can_jump = n.y <= -0.5
             self.remaining_jumps = self.NUMBER_JUMPS
+            self.particles.emmit(self.position, self.velocity)
 
         # para garantir que o jogador pula
         @space.separate_collision(CollisionType.PLAYER, CollisionType.PLATFORM)
         def _col_end(arb: Arbiter):
             self.can_jump = False if self.remaining_jumps == 0 else True
+            self.particles.emmit(self.position, self.velocity)
 
-
+       
         # para analisar colisão entre jogadores (PLAYER 2 TRAVA DEMAIS)
         @space.post_solve_collision(CollisionType.PLAYER, CollisionType.PLAYER)
         def _col_start(arb: Arbiter):
             print('\n\n\n\OOF\n\n\n')
+
