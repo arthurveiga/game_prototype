@@ -1,6 +1,6 @@
 # game_prototype
 
-Oi, doguinho! Este é o seu primeiro dia na neve! Tente não deixar cair a bola na neve e ese divirta com os flocos de neve enquanto pula!
+Oi, doguinho! Este é o seu primeiro dia na neve! Tente não deixar cair a bola na neve e se divirta com os flocos de neve enquanto pula!
 
 ### English
 
