@@ -29,7 +29,7 @@ class Game:
         pyxel.cls(BACKGROUND_COLOR)
         
         # Cria jogadores
-        self.player1 = Player(50, 50, 'dog', 'ArrowKeys')
+        self.player1 = Player(50, 50, 'dog', 'ArrowKeys', self.space)
         self.player1.register(self.space, self.message)
         
         #self.player2 = Player(80, 50, 'rabbit', 'WASD')

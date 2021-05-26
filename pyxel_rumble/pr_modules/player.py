@@ -3,7 +3,7 @@ import random
 from easymunk import Vec2d, PolyBody, Arbiter
 from .global_config import GameObject, CollisionType, WIDTH, HEIGHT, FPS
 from .anim_dog_moveset import *
-from .anim_rabbit_moveset import *
+from .particles import *
 
 class Player (GameObject, PolyBody):
     SPEED = 120
@@ -12,7 +12,7 @@ class Player (GameObject, PolyBody):
     NUMBER_JUMPS = 2
     DAMAGE_PERCENTAGE = 0
 
-    def __init__(self, x, y, animal, controls):
+    def __init__(self, x, y, animal, controls, space):
         
         if (animal == 'dog'):
             poly_vertices = [(2,0), (2,10), (15,10), (15,0)]
@@ -41,6 +41,7 @@ class Player (GameObject, PolyBody):
         self.animal = animal
         self.can_jump = False
         self.remaining_jumps = self.NUMBER_JUMPS
+        self.particles = Particles(space)
 
     def update(self):
         v = self.velocity
@@ -72,6 +73,7 @@ class Player (GameObject, PolyBody):
             and self.can_jump and self.remaining_jumps > 0 ):
             v = Vec2d(v.x, self.JUMP_SPEED)
             self.remaining_jumps-=1
+            self.particles.emmit(self.position, self.velocity)
         elif(pyxel.btnp(self.CONTROLS[3])
             and self.remaining_jumps < self.NUMBER_JUMPS):
             v = Vec2d(v.x, -self.JUMP_SPEED)
@@ -115,6 +117,7 @@ class Player (GameObject, PolyBody):
                 if(self.animal == 'rabbit'):
                     rabbit_moveset_anim_walk(camera, x, y, sign)
             elif(is_jumping):
+                self.particles.draw(self.particles.space.camera)
                 if(self.animal == 'dog'):
                     dog_moveset_init_jump(camera, x, y, sign)
                 if(self.animal == 'rabbit'):
