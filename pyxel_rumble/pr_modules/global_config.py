@@ -2,10 +2,12 @@ import enum
 from typing import Callable
 from abc import ABC, abstractmethod
 from easymunk import Space
+import pyxel
 
 #game window
 WIDTH, HEIGHT = 256, 196
-
+FPS = 30
+BACKGROUND_COLOR = pyxel.COLOR_BLACK
 SCENARIO = """
 |
 |
@@ -30,7 +32,8 @@ class GameState (enum.IntEnum):
     
 class CollisionType(enum.IntEnum):
     PLAYER = 1
-    PLATFORM = 2
+    BALL = 2
+    PLATFORM = 3
 
 class HitboxType(enum.IntEnum):
     HURTBOX = 0
